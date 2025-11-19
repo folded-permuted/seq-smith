@@ -44,19 +44,33 @@ jobs:
       - name: Build wheels
         run: cibuildwheel --output-dir wheelhouse
 
-      - name: Upload wheels to release
-        uses: actions/upload-release-asset@v1
+      - uses: actions/upload-artifact@v4
         with:
-          upload_url: ${{ github.event.release.upload_url }}
-          asset_path: ./wheelhouse/*.whl
-          asset_name: ${{ matrix.os }}-wheels.zip
-          asset_content_type: application/zip
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          name: wheels-${{ matrix.os }}
+          path: ./wheelhouse/*.whl
 
-      # - name: Publish to PyPI
-      #   env:
-      #     TWINE_USERNAME: __token__
-      #     TWINE_PASSWORD: ${{ secrets.PYPI_API_TOKEN }}
-      #   run: |
-      #     twine upload wheelhouse/*.whl
+  create_release:
+    name: Create GitHub Release
+    runs-on: ubuntu-latest
+    needs: [build_wheels] # Depends on the wheel-building job to succeed
+
+    steps:
+    - name: Download all wheels artifacts
+      uses: actions/download-artifact@v4
+      with:
+        path: artifacts
+
+    # Create the GitHub Release
+    - name: Create GitHub Release
+      id: create_release
+      uses: softprops/action-gh-release@v2
+      with:
+        # tag_name is automatically inferred from the push tag
+        draft: true # Optional: Create as a draft first
+        prerelease: false
+        generate_release_notes: true
+        # Add all the wheels from the downloaded artifacts to the release
+        files: artifacts/**/*.whl 
+
+    - name: Release URL
+      run: echo "Release created at ${{ steps.create_release.outputs.url }}"
