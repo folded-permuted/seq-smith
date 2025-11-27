@@ -55,7 +55,7 @@ for frag in alignment.fragments:
 
 ## Multi-threaded Alignment
 
-`seq-smith` alignment functions release the GIL while computing alignments, In order to reduce overhead associated with releasing and acquiring the GIL for each alignment, `seq-smith` also provides `*_many` versions of alignment functions for 1-vs-many scenarios. This is useful when you have a query sequence and want to align it against a large number of target sequences.
+`seq-smith` alignment functions release the GIL while computing alignments. In order to reduce overhead associated with releasing and acquiring the GIL for each alignment, `seq-smith` also provides `*_many` versions of alignment functions for 1-vs-many scenarios. This is useful when you have a query sequence and want to align it against a large number of target sequences.
 
 Example:
 
